@@ -43,7 +43,6 @@ for boardNum, boardInput in enumerate(data[1:]):
             boards[boardNum][y].append(xval)
             boardNums[boardNum].append(int(xval))
 
-calledNums = []    
 
 def checkMatchX(boardIndex):
     for x in range(5):
@@ -53,22 +52,43 @@ def checkMatchX(boardIndex):
 
 def checkMatchY(boardIndex):
     for x in range(5):
-        vals = boards[boardIndex][x::5][0]
-        if len([n for n in vals if int(n) in calledNums]) == 5:
+        vals = boardNums[boardIndex][x::5]
+        if len([n for n in vals if n in calledNums]) == 5:
             return True
     return False
 
-def processDraws():
+boardWins = defaultdict(int)
+
+def processDrawsP1():
+    global calledNums
+    calledNums = []
     for draw, drawNum in enumerate(draws):
         calledNums.append(int(drawNum))
         if draw > 3:
             for boardIndex, board in enumerate(boardNums):
                 if len([x for x in board if x in calledNums]) >= 5:
                     if checkMatchX(boardIndex) or checkMatchY(boardIndex):
-                        return boardIndex                    
+                        return boardIndex
 
-winBoardIndex = processDraws()
+def processDrawsP2():
+    global calledNums
+    calledNums = []    
+    for draw, drawNum in enumerate(draws):
+        calledNums.append(int(drawNum))
+        if draw > 3:
+            for boardIndex, board in enumerate(boardNums):
+                if len([x for x in board if x in calledNums]) >= 5:
+                    if checkMatchX(boardIndex) or checkMatchY(boardIndex):
+                        boardWins[boardIndex] += 1                    
+                        if len(boardWins.keys()) == len(boards):
+                            return boardIndex
+
+winBoardIndex = processDrawsP1()
 unmarkedNums = [x for x in boardNums[winBoardIndex] if x not in calledNums]
 
 print('Part 1:', sum(unmarkedNums) * calledNums[~0])
+
+lastWinBoardIndex = processDrawsP2()
+unmarkedNums = [x for x in boardNums[lastWinBoardIndex] if x not in calledNums]
+print('Part 2:', sum(unmarkedNums) * calledNums[~0])
 
